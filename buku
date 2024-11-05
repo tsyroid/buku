@@ -2857,7 +2857,7 @@ class BukuDb:
     def auto_import_from_browser(self, firefox_profile=None):
         """Import bookmarks from a browser default database file.
 
-        Supports Firefox, Google Chrome, Vivaldi, and Microsoft Edge.
+        Supports Firefox, Google Chrome, Vivaldi, Brave, and Microsoft Edge.
 
         Returns
         -------
@@ -2872,6 +2872,7 @@ class BukuDb:
             gc_bm_db_path = '~/.config/google-chrome/Default/Bookmarks'
             cb_bm_db_path = '~/.config/chromium/Default/Bookmarks'
             vi_bm_db_path = '~/.config/vivaldi/Default/Bookmarks'
+            bb_bm_db_path = '~/.config/BraveSoftware/Brave-Browser/Default/Bookmarks'
 
             default_ff_folder = os.path.expanduser('~/.mozilla/firefox')
             profiles = firefox_profile or get_firefox_profile_names(default_ff_folder)
@@ -2884,6 +2885,7 @@ class BukuDb:
             gc_bm_db_path = '~/Library/Application Support/Google/Chrome/Default/Bookmarks'
             cb_bm_db_path = '~/Library/Application Support/Chromium/Default/Bookmarks'
             vi_bm_db_path = '~/Library/Application Support/Vivaldi/Default/Bookmarks'
+            bb_bm_db_path = '~/Library/Application Support/BraveSoftware/Brave-Browser/Default/Bookmarks'
 
             default_ff_folder = os.path.expanduser('~/Library/Application Support/Firefox')
             profiles = firefox_profile or get_firefox_profile_names(default_ff_folder)
@@ -2962,6 +2964,19 @@ class BukuDb:
             except Exception as e:
                 LOGERR(e)
                 print('Could not import bookmarks from Vivaldi')
+
+            try:
+                if os.path.isfile(os.path.expanduser(bb_bm_db_path)):
+                    if self.chatty:
+                        resp = input('Import bookmarks from brave? (y/n): ')
+                    if resp == 'y':
+                        bookmarks_database = os.path.expanduser(bb_bm_db_path)
+                        if not os.path.exists(bookmarks_database):
+                            raise FileNotFoundError
+                        self.load_chrome_database(bookmarks_database, newtag, add_parent_folder_as_tag)
+            except Exception as e:
+                LOGERR(e)
+                print('Could not import bookmarks from brave')
 
             try:
                 ff_bm_db_paths = {k: s for k, s in ff_bm_db_paths.items() if os.path.isfile(os.path.expanduser(s))}
